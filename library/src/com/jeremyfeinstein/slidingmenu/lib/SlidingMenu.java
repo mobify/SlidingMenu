@@ -204,6 +204,9 @@ public class SlidingMenu extends RelativeLayout {
 
         int width = LayoutParams.MATCH_PARENT;
         int height = LayoutParams.MATCH_PARENT;
+
+        // Fixes an issue where the main content overlays the navigation bar.
+        // https://github.com/jfeinstein10/SlidingMenu/issues/680
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             width = getResources().getDisplayMetrics().widthPixels;
             height = getResources().getDisplayMetrics().heightPixels;

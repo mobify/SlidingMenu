@@ -201,13 +201,22 @@ public class SlidingMenu extends RelativeLayout {
 	 */
 	public SlidingMenu(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		
-		LayoutParams behindParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		mViewBehind = new CustomViewBehind(context);
-		addView(mViewBehind, behindParams);
-		LayoutParams aboveParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		mViewAbove = new CustomViewAbove(context);
-		addView(mViewAbove, aboveParams);
+
+        int width = LayoutParams.MATCH_PARENT;
+        int height = LayoutParams.MATCH_PARENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            width = getResources().getDisplayMetrics().widthPixels;
+            height = getResources().getDisplayMetrics().heightPixels;
+        }
+
+        LayoutParams behindParams = new LayoutParams(width, height);
+        mViewBehind = new CustomViewBehind(context);
+        addView(mViewBehind, behindParams);
+
+        LayoutParams aboveParams = new LayoutParams(width, height);
+        mViewAbove = new CustomViewAbove(context);
+        addView(mViewAbove, aboveParams);
+
 		// register the CustomViewBehind with the CustomViewAbove
 		mViewAbove.setCustomViewBehind(mViewBehind);
 		mViewBehind.setCustomViewAbove(mViewAbove);
@@ -282,7 +291,7 @@ public class SlidingMenu extends RelativeLayout {
 		ta.recycle();
 	}
 
-	/**
+    /**
 	 * Attaches the SlidingMenu to an entire Activity
 	 * 
 	 * @param activity the Activity
@@ -365,6 +374,19 @@ public class SlidingMenu extends RelativeLayout {
 		return mViewAbove.getContent();
 	}
 
+    /**
+     * Retrieves the height of the status bar
+     * @return the height in int
+     */
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
 	/**
 	 * Set the behind view (menu) content from a layout resource. The resource will be inflated, adding all top-level views
 	 * to the behind view.
@@ -378,9 +400,15 @@ public class SlidingMenu extends RelativeLayout {
 	/**
 	 * Set the behind view (menu) content to the given View.
 	 *
-	 * @param view The desired content to display.
+	 * @param v The desired content to display.
 	 */
 	public void setMenu(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Add padding to view to compensate for status bar (needed for Lollipop when using
+            // SLIDING_WINDOW mode with SlidingMenu)
+            // https://github.com/jfeinstein10/SlidingMenu/issues/680#issuecomment-75761687
+            v.setPadding(0, getStatusBarHeight(), 0, 0);
+        }
 		mViewBehind.setContent(v);
 	}
 
@@ -405,9 +433,15 @@ public class SlidingMenu extends RelativeLayout {
 	/**
 	 * Set the secondary behind view (right menu) content to the given View.
 	 *
-	 * @param view The desired content to display.
+	 * @param v The desired content to display.
 	 */
 	public void setSecondaryMenu(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Add padding to view to compensate for status bar (needed for Lollipop when using
+            // SLIDING_WINDOW mode with SlidingMenu)
+            // https://github.com/jfeinstein10/SlidingMenu/issues/680#issuecomment-75761687
+            v.setPadding(0, getStatusBarHeight(), 0, 0);
+        }
 		mViewBehind.setSecondaryContent(v);
 		//		mViewBehind.invalidate();
 	}
